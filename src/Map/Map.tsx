@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import "maplibre-gl/dist/maplibre-gl.css";
 import getSessionToke, { SessionTokenRequestResponse } from "./getSessionToken";
 import getSessionToken from "./getSessionToken";
-import GoogleAPIKey from "./GoogleAPIKey";
+import { googleMapsAPIKey, kaabaCoordinates } from "./constants";
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ function Map() {
             },
             googleHybrid: {
               type: "raster",
-              tiles: [`https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${ response.session }&key=${ GoogleAPIKey }`],
+              tiles: [`https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${ response.session }&key=${ googleMapsAPIKey }`],
               tileSize: 256
             }
           },
@@ -52,7 +52,7 @@ function Map() {
             },
           ]
         },
-        center: [ 39.82619171049062, 21.422558346396745 ],
+        center: kaabaCoordinates,
         zoom: 16,
       });
 

@@ -1,4 +1,4 @@
-import GoogleAPIKey from "./GoogleAPIKey";
+import { googleMapsAPIKey } from './constants';
 
 export type SessionTokenRequestResponse = {
   "session": string,
