@@ -1,9 +1,11 @@
 import { Map as MaplibreMap, NavigationControl } from "maplibre-gl";
 import { useEffect, useRef, useState } from "preact/hooks";
 import "maplibre-gl/dist/maplibre-gl.css";
-import getSessionToke, { SessionTokenRequestResponse } from "./getSessionToken";
-import getSessionToken from "./getSessionToken";
+import { MapboxOverlay } from '@deck.gl/mapbox';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
+import getSessionToken, { SessionTokenRequestResponse } from "./getSessionToken";
 import { googleMapsAPIKey, kaabaCoordinates } from "./constants";
+import kaabaModelUrl from "../assets/holy kaaba/scene.gltf?url";
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -48,7 +50,6 @@ function Map() {
               type: "raster",
               source: "googleHybrid",
               minzoom: 14,
-              maxzoom: 19
             },
           ]
         },
@@ -63,6 +64,23 @@ function Map() {
           showCompass: true
         })
       );
+
+      // Add deck.gl ScenegraphLayer for Kaaba 3D model
+      const deckOverlay = new MapboxOverlay({
+        layers: [
+          new ScenegraphLayer({
+            id: 'kaaba-model',
+            data: [{ position: [...kaabaCoordinates, 0] }],
+            scenegraph: kaabaModelUrl,
+            getPosition: (d: any) => d.position,
+            getOrientation: (d: any) => [0, 0, 90],
+            sizeScale: 1,
+            _lighting: 'pbr'
+          } as any)
+        ]
+      });
+
+      newMap.addControl(deckOverlay as any);
 
       setMap(newMap);
     });
