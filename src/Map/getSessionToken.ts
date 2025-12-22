@@ -1,22 +1,22 @@
 import { googleMapsAPIKey } from './constants';
 
 export type SessionTokenRequestResponse = {
-  "session": string,
-  "expiry": string,
-  "tileWidth": number,
-  "tileHeight": number,
-  "imageFormat": "png" | "jpg",
+  session: string,
+  expiry: string,
+  tileWidth: number,
+  tileHeight: number,
+  imageFormat: 'png' | 'jpg',
 }
 
 function getSessionToken(): Promise<SessionTokenRequestResponse> {
   return fetch(
-    `https://tile.googleapis.com/v1/createSession?key=${ GoogleAPIKey }`, {
+    `https://tile.googleapis.com/v1/createSession?key=${ googleMapsAPIKey }`, {
       method: 'POST',
       body: JSON.stringify({
-        mapType: "satellite",
-        language: "en-US",
-        region: "US",
-        layerTypes: ["layerRoadmap"]
+        mapType: 'satellite',
+        language: 'en-US',
+        region: 'US',
+        layerTypes: ['layerRoadmap']
       })
     }
   ).then(res => res.json());
