@@ -14,6 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # or your preferred version
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Vite project
+        run: npm run build
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
@@ -21,15 +33,11 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H boheemia.ee >> ~/.ssh/known_hosts
 
-      - name: Create file for PoC
+      - name: Deploy to server
         run: |
-          ssh virt65914@boheemia.ee "\
-            cd domeenid/www.boheemia.ee/qibla-finder/ && \
-            echo 'In directory:' && pwd && \
-            ls && \
-            npm run backup || true && \
-            nvm use || true && \
-            npm i || true && \
-            pm2 delete application || true && \
-            pm2 save --force && \
-            pm2 start ./server/application.ts --interpreter=node --node-args='--env-file=./configurations/.env' --watch"
+          # Create deployment directory if it doesn't exist
+          ssh virt65914@boheemia.ee "rm -rf domeenid/www.boheemia.ee/qibla/*"
+          
+          # Transfer built files and server files
+          rsync -avz --delete dist/ virt65914@boheemia.ee:domeenid/www.boheemia.ee/qibla
+          
