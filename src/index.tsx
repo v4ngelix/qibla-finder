@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import Map from "./Map";
+import Map from './Map';
 
 import './style.css';
 
