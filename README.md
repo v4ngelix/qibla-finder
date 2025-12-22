@@ -1,15 +1,12 @@
-# `create-preact`
+# Find Qibla
+A suckless web map application for finding Qibla.
+Built as a personal light-weight research tool,
+but maybe useful for other people as well.
 
-<h2 align="center">
-  <img height="256" width="256" src="./src/assets/preact.svg">
-</h2>
-
-<h3 align="center">Get started using Preact and Vite!</h3>
-
-## Getting Started
-
--   `npm run dev` - Starts a dev server at http://localhost:5173/
-
--   `npm run build` - Builds for production, emitting to `dist/`
-
--   `npm run preview` - Starts a server at http://localhost:4173/ to test production build locally
+## TODO:
+* Maplibre and Google raster on a globe view?
+* Google maps
+* Deck.gl:
+  * Scenegraph layer - 3d mecca.
+  * Line layer, between you and mecca.
+* For mobile, allow mobile positioning if possible.
