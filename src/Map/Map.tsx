@@ -43,13 +43,14 @@ function Map() {
               type: "raster",
               source: "osm",
               minzoom: 0,
-              maxzoom: 14
+              maxzoom: 19
             },
             {
               id: "googleHybrid",
               type: "raster",
               source: "googleHybrid",
               minzoom: 14,
+              maxzoom: 19
             },
           ]
         },
