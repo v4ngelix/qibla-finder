@@ -54,7 +54,11 @@ function Map() {
           ]
         },
         center: kaabaCoordinates,
-        zoom: 16,
+        zoom: 18,
+        maxZoom: 18,
+        pitchWithRotate: false,
+        dragRotate: false,
+        touchZoomRotate: false
       });
 
       newMap.addControl(
