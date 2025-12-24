@@ -5,36 +5,31 @@ import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { LineLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from "./getSessionToken";
-import { defaultZoom, kaabaCoordinates, kaabaCoordinates3D, primaryGreenRGB } from "./constants";
-import kaabaModelUrl from "../assets/holy kaaba/scene.gltf?url";
+import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from "./constants";
+// TODO: Fix model offset.
+// import kaabaModelUrl from "../assets/holy kaaba/scene.gltf?url";
+import Box from "../assets/Box/Box.gltf?url";
 import getBasemapStyle from "./getBasemapStyle";
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [ clickedPosition, setClickedPosition ] = useState<[number, number] | null>(null);
   const [ map, setMap ] = useState<MaplibreMap | undefined>(undefined);
-  const [ zoom, setZoom ] = useState<number>(defaultZoom);
   const deckOverlayRef = useRef<MapboxOverlay | null>(null);
 
-  const kaaba3D = useMemo(() => {
-    console.log('rerender?')
-    return (
-
-      new ScenegraphLayer({
-        id: 'kaaba-model',
-        data: [{ position: kaabaCoordinates3D }],
-        scenegraph: kaabaModelUrl,
-        getPosition: (d: any) => [d.position[0], d.position[1], 0],
-        getOrientation: (_d: any) => [0, 32, 90],
-        sizeScale: 10,
-        _lighting: 'pbr'
-      })
-    );
-  }, [ zoom ]);
+  const kaaba3D = new ScenegraphLayer({
+    id: 'kaaba-model',
+    data: [{ position: kaabaCoordinates }],
+    scenegraph: Box,
+    getPosition: (d: any): [ number, number, number ] => [d.position[0], d.position[1], 1],
+    getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
+    sizeMinPixels: 40,
+    getPolygonOffset: (): [ number, number ] => [ .5, .5],
+    _lighting: 'pbr'
+  });
 
   useEffect((): void => {
     if (map === undefined) {
-      console.log('effect')
       getSessionToken()
         .then((
           response: SessionTokenRequestResponse
@@ -44,7 +39,7 @@ function Map() {
           style: getBasemapStyle(response.session),
           center: kaabaCoordinates,
           zoom: defaultZoom,
-          maxZoom: 18,
+          pitch: 45
         });
 
         newMap.addControl(
@@ -56,22 +51,13 @@ function Map() {
         );
 
         const deckOverlay = new MapboxOverlay({
-          layers: [
-            kaaba3D
-          ],
-          interleaved: true
+          layers: [ kaaba3D ]
         });
 
         newMap.addControl(deckOverlay as any);
         newMap.on('click', (e) => {
           setClickedPosition([e.lngLat.lng, e.lngLat.lat]);
         });
-        newMap.on('zoom', () => {
-          const roundedZoom: number = Math.round(newMap.getZoom());
-          if (roundedZoom === zoom) {
-            setZoom(roundedZoom);
-          }
-        })
 
         deckOverlayRef.current = deckOverlay;
         setMap(newMap);
@@ -82,15 +68,12 @@ function Map() {
   useEffect((): void => {
     if (!deckOverlayRef.current) return;
 
-    const layers: any[] = [
-      kaaba3D
-    ];
+    const layers: any[] = [ kaaba3D ];
 
     if (clickedPosition) {
-      console.log("clickedPosition", clickedPosition);
       type LineData = {
-        source: [number, number];
-        target: [number, number];
+        source: [ number, number ];
+        target: [ number, number ];
       };
 
       layers.push([
@@ -109,7 +92,7 @@ function Map() {
     }
 
     deckOverlayRef.current.setProps({ layers });
-  }, [ clickedPosition, zoom ]);
+  }, [ clickedPosition ]);
 
   return (
     <div id="map" ref={ mapContainerRef } />
