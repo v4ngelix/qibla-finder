@@ -8,7 +8,7 @@ import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken'
 import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from './constants';
 import getBasemapStyle from './getBasemapStyle';
 
-type Position = [ number, number, number ];
+export type Position = [ number, number, number ];
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -16,27 +16,17 @@ function Map() {
   const [ map, setMap ] = useState<MaplibreMap | undefined>(undefined);
   const deckOverlayRef = useRef<MapboxOverlay | null>(null);
 
-  const kaaba3D = new ScenegraphLayer({
-    id: 'kaaba-model',
-    data: [{ position: kaabaCoordinates }],
-    scenegraph: '/Box/Box.gltf',
-    getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
-    getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
-    sizeMinPixels: 40,
-    getPolygonOffset: (): [ number, number ] => [ .5, .5],
-    _lighting: 'pbr'
-  });
-
-  useEffect((): void => {
-    if (map === undefined) {
-      getSessionToken()
-        .then((
-          response: SessionTokenRequestResponse
-        ): void => {
+  const initializeMap = (
+    centerPointOverride?: [ number, number ]
+  ): void => {
+    getSessionToken()
+      .then((
+        response: SessionTokenRequestResponse
+      ): void => {
         const newMap = new MaplibreMap({
           container: mapContainerRef.current,
           style: getBasemapStyle(response.session),
-          center: kaabaCoordinates,
+          center: centerPointOverride ?? kaabaCoordinates,
           zoom: defaultZoom,
           pitch: 45
         });
@@ -61,6 +51,33 @@ function Map() {
         deckOverlayRef.current = deckOverlay;
         setMap(newMap);
       });
+  }
+
+  const kaaba3D = new ScenegraphLayer({
+    id: 'kaaba-model',
+    data: [{ position: kaabaCoordinates }],
+    scenegraph: '/Box/Box.gltf',
+    getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
+    getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
+    sizeMinPixels: 40,
+    getPolygonOffset: (): [ number, number ] => [ .5, .5],
+    _lighting: 'pbr'
+  });
+
+  useEffect((): void => {
+    if (map === undefined) {
+
+      if (navigator?.geolocation?.getCurrentPosition) {
+        navigator.geolocation.getCurrentPosition(
+          (position: GeolocationPosition): void => {
+            const centerPointOverride: [ number, number ] = [ position.coords.longitude, position.coords.latitude ];
+            initializeMap(centerPointOverride);
+          },
+          () => initializeMap()
+        );
+      } else {
+        initializeMap();
+      }
     }
   }, [ mapContainerRef ]);
 
