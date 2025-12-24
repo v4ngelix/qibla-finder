@@ -39,5 +39,5 @@ jobs:
           ssh virt65914@boheemia.ee "rm -rf domeenid/www.boheemia.ee/qibla/*"
           
           # Transfer built files and server files
-          rsync -avz --delete dist/ virt65914@boheemia.ee:domeenid/www.boheemia.ee/qibla
+          rsync -avz dist/ virt65914@boheemia.ee:domeenid/www.boheemia.ee/qibla
           
