@@ -7,7 +7,11 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"deck.gl": "^9.2.5",
+		"@deck.gl/core": "^9.2.5",
+		"@deck.gl/geo-layers": "^9.2.5",
+		"@deck.gl/layers": "^9.2.5",
+		"@deck.gl/mapbox": "^9.2.5",
+		"@deck.gl/mesh-layers": "^9.2.5",
 		"maplibre-gl": "^5.15.0",
 		"preact": "^10.25.3"
 	},
