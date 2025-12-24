@@ -1,4 +1,5 @@
 export const googleMapsAPIKey: string = 'AIzaSyD4ZvE5Mkdc2hQ-QY07TnZF6Mclfibzjxg';
+export const defaultZoom = 18;
 export const kaabaCoordinates: [number, number] = [ 39.82619985500611, 21.422506610479076 ];
 
 /**
