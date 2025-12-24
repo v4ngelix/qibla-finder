@@ -32,14 +32,12 @@ const getBasemapStyle = (
         type: "raster",
         source: "osm",
         minzoom: 0,
-        maxzoom: 20
       },
       {
         id: "googleHybrid",
         type: "raster",
         source: "googleHybrid",
         minzoom: 14,
-        maxzoom: 20
       }
     ]
   }
