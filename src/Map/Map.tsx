@@ -6,10 +6,8 @@ import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { LineLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from "./getSessionToken";
 import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from "./constants";
-// TODO: Fix model offset.
-// import kaabaModelUrl from "../assets/holy kaaba/scene.gltf?url";
-import Box from "../assets/Box/Box.gltf?url";
 import getBasemapStyle from "./getBasemapStyle";
+const Box = "/assets/Box/Box.gltf";
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
