@@ -9,8 +9,6 @@ export type SessionTokenRequestResponse = {
 }
 
 function getSessionToken(): Promise<SessionTokenRequestResponse> {
-  console.log('KANA', googleMapsAPIKey);
-
   return fetch(
     `https://tile.googleapis.com/v1/createSession?key=${ googleMapsAPIKey }`, {
       method: 'POST',
