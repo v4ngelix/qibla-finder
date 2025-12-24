@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
-import { LineLayer } from '@deck.gl/layers';
+import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
 import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from './constants';
 import getBasemapStyle from './getBasemapStyle';
+
+type Position = [ number, number, number ];
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +20,7 @@ function Map() {
     id: 'kaaba-model',
     data: [{ position: kaabaCoordinates }],
     scenegraph: '/Box/Box.gltf',
-    getPosition: (d: any): [ number, number, number ] => [d.position[0], d.position[1], 1],
+    getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
     getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
     sizeMinPixels: 40,
     getPolygonOffset: (): [ number, number ] => [ .5, .5],
@@ -81,9 +83,17 @@ function Map() {
             target: kaabaCoordinates
           }],
           getWidth: 4,
-          getSourcePosition: (d: LineData): [ number, number, number] => [d.source[0], d.source[1], 0],
-          getTargetPosition: (d: LineData): [ number, number, number] => [d.target[0], d.target[1], 0],
+          getSourcePosition: (d: LineData): Position => [d.source[0], d.source[1], 0],
+          getTargetPosition: (d: LineData): Position => [d.target[0], d.target[1], 0],
           getColor: primaryGreenRGB,
+        }),
+        new ScatterplotLayer({
+          id: 'qibla-direction-source',
+          data: [ clickedPosition ],
+          getWidth: 4,
+          getPosition: (d: any): Position => d,
+          getFillColor: (): [ number, number, number ] => primaryGreenRGB,
+          radiusMinPixels: 4
         })
       ]);
     }
