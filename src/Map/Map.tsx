@@ -1,13 +1,12 @@
-import { Map as MaplibreMap, NavigationControl } from "maplibre-gl";
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MaplibreMap, NavigationControl } from 'maplibre-gl';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { LineLayer } from '@deck.gl/layers';
-import getSessionToken, { SessionTokenRequestResponse } from "./getSessionToken";
-import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from "./constants";
-import getBasemapStyle from "./getBasemapStyle";
-const Box = "/assets/Box/Box.gltf";
+import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
+import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from './constants';
+import getBasemapStyle from './getBasemapStyle';
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +17,7 @@ function Map() {
   const kaaba3D = new ScenegraphLayer({
     id: 'kaaba-model',
     data: [{ position: kaabaCoordinates }],
-    scenegraph: Box,
+    scenegraph: '/assets/Box.gltf',
     getPosition: (d: any): [ number, number, number ] => [d.position[0], d.position[1], 1],
     getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
     sizeMinPixels: 40,
