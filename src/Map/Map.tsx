@@ -17,7 +17,7 @@ function Map() {
   const kaaba3D = new ScenegraphLayer({
     id: 'kaaba-model',
     data: [{ position: kaabaCoordinates }],
-    scenegraph: '/assets/Box.gltf',
+    scenegraph: '/Box/Box.gltf',
     getPosition: (d: any): [ number, number, number ] => [d.position[0], d.position[1], 1],
     getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
     sizeMinPixels: 40,
