@@ -8,7 +8,7 @@ const getBasemapStyle = (
 
 
   let basemapStyleString: string = JSON.stringify(basestyle);
-  basemapStyleString = basemapStyleString.replace('{key}', mapTileAPIKey);
+  basemapStyleString = basemapStyleString.replace(/\{key}/g, mapTileAPIKey);
   basemapStyleString = basemapStyleString.replace('{map-background-color}', primaryGreenHEX);
 
   if (sessionToken) {
