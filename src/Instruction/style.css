@@ -1,9 +1,23 @@
-.qibla__instruction {
+.qibla__instruction-container {
   position: absolute;
   top: 0;
   left: 0;
-  margin: 1rem;
-  border-radius: .25rem;
-  padding: .25rem .75rem;
+  width: 100%;
+  pointer-events: none;
+}
+
+.qibla__instruction {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  margin: 10px auto;
+  border-radius: 2px;
+  padding: 0 17px;
+  width: min-content;
+  font: 400 18px Roboto, Arial, sans-serif;
+  color: rgb(86, 86, 86);
+  white-space: nowrap;
   background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
 }
