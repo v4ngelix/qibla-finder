@@ -1,72 +1,63 @@
-import { Map as MaplibreMap, NavigationControl } from 'maplibre-gl';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { MapboxOverlay } from '@deck.gl/mapbox';
+import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
-import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
 import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from './constants';
-import getBasemapStyle from './getBasemapStyle';
 
-export type Position = [ number, number, number ];
+export type Position = [number, number, number];
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [ clickedPosition, setClickedPosition ] = useState<[number, number] | null>(null);
-  const [ map, setMap ] = useState<MaplibreMap | undefined>(undefined);
-  const deckOverlayRef = useRef<MapboxOverlay | null>(null);
-
-  const initializeMap = (
-    centerPointOverride?: [ number, number ]
-  ): void => {
-    getSessionToken()
-      .then((
-        response: SessionTokenRequestResponse
-      ): void => {
-        const newMap = new MaplibreMap({
-          container: mapContainerRef.current,
-          style: getBasemapStyle(response.session),
-          center: centerPointOverride ?? kaabaCoordinates,
-          zoom: defaultZoom,
-          pitch: 45
-        });
-
-        newMap.addControl(
-          new NavigationControl({
-            visualizePitch: true,
-            showZoom: true,
-            showCompass: true
-          })
-        );
-
-        const deckOverlay = new MapboxOverlay({
-          layers: [ kaaba3D ]
-        });
-
-        newMap.addControl(deckOverlay as any);
-        newMap.on('click', (e) => {
-          setClickedPosition([e.lngLat.lng, e.lngLat.lat]);
-        });
-
-        deckOverlayRef.current = deckOverlay;
-        setMap(newMap);
-      });
-  }
+  const [clickedPosition, setClickedPosition] = useState<[number, number] | null>(null);
+  const [map, setMap] = useState<google.maps.Map | undefined>(undefined);
+  const deckOverlayRef = useRef<GoogleMapsOverlay | null>(null);
 
   const kaaba3D = new ScenegraphLayer({
     id: 'kaaba-model',
     data: [{ position: kaabaCoordinates }],
     scenegraph: '/Box/Box.gltf',
     getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
-    getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
+    getOrientation: (_d: any): [number, number, number] => [0, 32, 90],
     sizeMinPixels: 40,
-    getPolygonOffset: (): [ number, number ] => [ .5, .5],
+    getPolygonOffset: (): [number, number] => [.5, .5],
     _lighting: 'pbr'
   });
 
+  const initializeMap = async (
+    centerPointOverride?: [number, number]
+  ): Promise<void> => {
+    const { Map: GoogleMap } = await google.maps.importLibrary('maps') as google.maps.MapsLibrary;
+
+    const center = centerPointOverride ?? kaabaCoordinates;
+
+    const newMap = new GoogleMap(mapContainerRef.current!, {
+      center: { lat: center[1], lng: center[0] },
+      zoom: defaultZoom,
+      tilt: 45,
+      mapId: 'qibla-finder-map',
+      mapTypeId: 'hybrid',
+      disableDefaultUI: true,
+      mapTypeControl: true
+    });
+
+    const deckOverlay = new GoogleMapsOverlay({
+      layers: [kaaba3D]
+    });
+
+    deckOverlay.setMap(newMap);
+
+    newMap.addListener('click', (e: google.maps.MapMouseEvent) => {
+      if (e.latLng) {
+        setClickedPosition([e.latLng.lng(), e.latLng.lat()]);
+      }
+    });
+
+    deckOverlayRef.current = deckOverlay;
+    setMap(newMap);
+  };
+
   useEffect((): void => {
     if (map === undefined) {
-
       if (navigator?.geolocation?.getCurrentPosition) {
         navigator.geolocation.getCurrentPosition(
           (position: GeolocationPosition): void => {
