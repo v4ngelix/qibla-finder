@@ -26,7 +26,7 @@
       "type": "vector",
       "url": "https://api.maptiler.com/tiles/v3-openmaptiles/tiles.json?key={key}"
     },
-    "googleHybrid": {
+    "google-hybrid": {
       "type": "raster",
       "tiles": [ "https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session={google-maps-session-token}&key={google-maps-api-key}" ],
       "tileSize": 256
@@ -2564,12 +2564,6 @@
         "text-halo-color": "rgba(255,255,255,0.8)",
         "text-halo-width": 2
       }
-    },
-    {
-      "id": "googleHybrid",
-      "type": "raster",
-      "source": "googleHybrid",
-      "minzoom": 14
     }
   ],
   "id": "bright"
