@@ -6,6 +6,7 @@ export default defineConfig({
 	plugins: [preact()],
 	server: {
 		open: true,
+		port: 1234
 	},
 	assetsInclude: ['**/*.gltf', '**/*.glb', '**/*.bin'],
 	build: {
