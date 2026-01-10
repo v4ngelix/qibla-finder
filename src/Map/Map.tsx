@@ -66,6 +66,7 @@ function Map() {
     getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
     getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
     sizeMinPixels: 40,
+    sizeScale: 20,
     getPolygonOffset: (): [ number, number ] => [ .5, .5],
     _lighting: 'pbr'
   });
