@@ -5,7 +5,13 @@ import { MapboxOverlay } from '@deck.gl/mapbox';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
-import { defaultZoom, kaabaCoordinates, primaryGreenRGB } from './constants';
+import {
+  backgroundOpacity,
+  defaultZoom,
+  kaabaCoordinates,
+  primaryGreenRGB,
+  whiteRGB
+} from './constants';
 import getBasemapStyle from './getBasemapStyle';
 
 export type Position = [ number, number, number ];
@@ -94,23 +100,54 @@ function Map() {
 
       layers.push([
         new LineLayer<LineData>({
-          id: 'qibla-direction-line',
-          data: [{
-            source: clickedPosition,
-            target: kaabaCoordinates
-          }],
+          id: 'qibla-direction',
+          data: [
+            {
+              source: clickedPosition,
+              target: kaabaCoordinates,
+            }
+          ],
+          getWidth: 8,
+          getSourcePosition: (d: LineData): Position => [d.source[0], d.source[1], 0],
+          getTargetPosition: (d: LineData): Position => [d.target[0], d.target[1], 0],
+          getColor: whiteRGB,
+          opacity: backgroundOpacity
+        }),
+        new ScatterplotLayer({
+          id: 'qibla-direction-source-background',
+          data: [ clickedPosition ],
+          getPosition: (d: any): Position => d,
+          getFillColor: whiteRGB,
+          opacity: backgroundOpacity,
+          getRadius: 8,
+          radiusUnits: 'pixels',
+          parameters: {
+            depthTest: false
+          }
+        }),
+        new LineLayer<LineData>({
+          id: 'qibla-direction-foreground',
+          data: [
+            {
+              source: clickedPosition,
+              target: kaabaCoordinates,
+            },
+          ],
           getWidth: 4,
           getSourcePosition: (d: LineData): Position => [d.source[0], d.source[1], 0],
           getTargetPosition: (d: LineData): Position => [d.target[0], d.target[1], 0],
           getColor: primaryGreenRGB,
         }),
         new ScatterplotLayer({
-          id: 'qibla-direction-source',
+          id: 'qibla-direction-source-foreground',
           data: [ clickedPosition ],
-          getWidth: 4,
           getPosition: (d: any): Position => d,
-          getFillColor: (): [ number, number, number ] => primaryGreenRGB,
-          radiusMinPixels: 4
+          getFillColor: primaryGreenRGB,
+          getRadius: 6,
+          radiusUnits: 'pixels',
+          parameters: {
+            depthTest: false
+          }
         })
       ]);
     }
