@@ -26,6 +26,7 @@ jobs:
       - name: Build Vite project
         env:
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}
+          VITE_MAPTILER_API_KEY: ${{ secrets.VITE_MAPTILER_API_KEY }}
         run: npm run build
 
       - name: Set up SSH key
