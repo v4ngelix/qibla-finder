@@ -91,7 +91,7 @@ function Map() {
   useEffect((): void => {
     if (!deckOverlayRef.current) return;
 
-    const layers: any[] = [ kaaba3D ];
+    const layers: any[] = [];
 
     if (clickedPosition) {
       type LineData = {
@@ -153,6 +153,7 @@ function Map() {
       ]);
     }
 
+    layers.push(kaaba3D);
     deckOverlayRef.current.setProps({ layers });
   }, [ clickedPosition ]);
 
