@@ -5,7 +5,8 @@ import {
 	kaabaCoordinates,
 	kaabaModelReferenceZoom,
 	kaabaModelRotationDegrees,
-	kaabaModelScale
+	kaabaModelScale,
+	kaabaModelScaleMinZoom
 } from './constants';
 
 // getMatrixForModel already converts Y-up glTF space to the map's Z-up space
@@ -51,7 +52,7 @@ const getKaabaLayer = (): CustomLayerInterface => {
 		render(_gl: WebGL2RenderingContext, args: CustomRenderMethodInput): void {
 			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
 			const scale = kaabaModelScale
-				* 2 ** (kaabaModelReferenceZoom - map.getZoom());
+				* 2 ** (kaabaModelReferenceZoom - Math.max(map.getZoom(), kaabaModelScaleMinZoom));
 			kaabaScale.makeScale(scale, scale, scale);
 			camera.projectionMatrix = new THREE.Matrix4()
 				.fromArray(args.defaultProjectionData.mainMatrix)
