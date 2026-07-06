@@ -121,7 +121,7 @@ function Map() {
             }
           },
           parameters: {
-            cullMode: 'none',
+            cullMode: 'back',
           }
         });
       });
