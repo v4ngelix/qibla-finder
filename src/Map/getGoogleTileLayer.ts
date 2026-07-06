@@ -14,7 +14,7 @@ const getGoogleTileLayer = (
     getPolygon: d => d,
     stroked: false,
     filled: true,
-    getFillColor: [255, 255, 255]
+    getFillColor: [255, 255, 255],
   }),
   new TileLayer({
     id: 'google-roadmap',
