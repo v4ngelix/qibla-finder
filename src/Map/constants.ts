@@ -8,4 +8,3 @@ export const kaabaModelScale = 40;
 export const kaabaModelReferenceZoom = defaultZoom;
 export const kaabaModelRotationDegrees = 32;export const white = '#ffffff';
 export const primaryGreen = 'rgb(71, 133, 85)';
-export const backgroundOpacity: number = .125;

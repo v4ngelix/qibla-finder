@@ -1,6 +1,6 @@
 import type { GeoJSONSource, Map } from 'maplibre-gl';
 import getGreatCirclePoints from './greatCircle';
-import { backgroundOpacity, kaabaCoordinates, primaryGreen, white } from './constants';
+import { kaabaCoordinates, primaryGreen, white } from './constants';
 
 const qiblaLineSource = 'qibla-line';
 const qiblaPointSource = 'qibla-point';
@@ -22,7 +22,6 @@ export const addQiblaLayers = (map: Map): void => {
 		paint: {
 			'line-color': white,
 			'line-width': 8,
-			'line-opacity': backgroundOpacity
 		}
 	});
 	map.addLayer({
@@ -32,7 +31,6 @@ export const addQiblaLayers = (map: Map): void => {
 		paint: {
 			'circle-color': white,
 			'circle-radius': 8,
-			'circle-opacity': backgroundOpacity
 		}
 	});
 	map.addLayer({
