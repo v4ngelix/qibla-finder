@@ -50,8 +50,6 @@ const getKaabaLayer = (): CustomLayerInterface => {
 
 		render(_gl: WebGL2RenderingContext, args: CustomRenderMethodInput): void {
 			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
-			// Ground meters per screen pixel halve with each zoom level, so
-			// counter-scale the model to keep its on-screen size constant.
 			const scale = kaabaModelScale
 				* 2 ** (kaabaModelReferenceZoom - map.getZoom());
 			kaabaScale.makeScale(scale, scale, scale);
