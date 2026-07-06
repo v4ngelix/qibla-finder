@@ -30,7 +30,7 @@ body {
 	position: absolute;
 	inset: 0;
 	height: 100vh;
-	background-color: #05070a;
+	background-color: rgb(71, 133, 85);
 }
 
 #map canvas {
