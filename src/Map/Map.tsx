@@ -37,7 +37,10 @@ const getQiblaLayers = (
       widthUnits: 'pixels',
       opacity: backgroundOpacity,
       greatCircle: true,
-      getHeight: 0
+      getHeight: 0,
+      parameters: {
+        cullMode: "none"
+      }
     }),
     new ScatterplotLayer({
       id: 'qibla-source-background',
@@ -59,7 +62,10 @@ const getQiblaLayers = (
       getWidth: 4,
       widthUnits: 'pixels',
       greatCircle: true,
-      getHeight: 0
+      getHeight: 0,
+      parameters: {
+        cullMode: "none"
+      }
     }),
     new ScatterplotLayer({
       id: 'qibla-source-foreground',
