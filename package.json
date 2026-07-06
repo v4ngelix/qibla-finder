@@ -9,9 +9,10 @@
 	"dependencies": {
 		"@deck.gl/core": "^9.2.5",
 		"@deck.gl/layers": "^9.2.5",
-		"@deck.gl/mapbox": "^9.2.5",
+		"@deck.gl/geo-layers": "^9.2.5",
 		"@deck.gl/mesh-layers": "^9.2.5",
-		"maplibre-gl": "^5.15.0",
+		"@loaders.gl/core": "^4.4.3",
+		"@loaders.gl/gltf": "^4.4.3",
 		"preact": "^10.25.3"
 	},
 	"devDependencies": {
