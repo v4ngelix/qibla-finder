@@ -7,8 +7,13 @@ import getGoogleStyle from './getGoogleStyle';
 import getKaabaLayer from './getKaabaLayer';
 import { addQiblaLayers, showQibla } from './getQiblaLayers';
 import { defaultZoom, kaabaCoordinates, maxZoom } from './constants';
-
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+let mapInstance: maplibregl.Map | null = null;
+
+export function flyToKaaba(): void {
+	mapInstance?.flyTo({ center: kaabaCoordinates, zoom: defaultZoom });
+}
 
 function Map() {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +45,7 @@ function Map() {
 			});
 
 			mapRef.current = map;
+			mapInstance = map;
 		});
 	};
 
@@ -60,6 +66,7 @@ function Map() {
 		return (): void => {
 			mapRef.current?.remove();
 			mapRef.current = null;
+			mapInstance = null;
 		};
 	}, []);
 

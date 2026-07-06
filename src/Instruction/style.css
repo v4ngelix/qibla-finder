@@ -5,18 +5,49 @@
   width: 100%;
 }
 
+.qibla__instruction-group {
+  display: flex;
+  width: max-content;
+  margin: 10px auto;
+  border-radius: 2px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+  overflow: hidden;
+}
+
 .qibla__instruction {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 40px;
-  margin: 10px auto;
-  border-radius: 2px;
   padding: 0 17px;
-  width: min-content;
   font: 400 18px Roboto, Arial, sans-serif;
   color: rgb(86, 86, 86);
   white-space: nowrap;
-  background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+  user-select: none;
+}
+
+.qibla__kaaba-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-left: 1px solid rgb(230, 230, 230);
+  background: none;
+  cursor: pointer;
+}
+
+.qibla__kaaba-button:hover,
+.qibla__kaaba-button:focus,
+.qibla__kaaba-button:active {
+  background-color: rgb(71, 133, 85);
+}
+
+.qibla__kaaba-button img {
+  width: 22px;
+  height: 22px;
 }
