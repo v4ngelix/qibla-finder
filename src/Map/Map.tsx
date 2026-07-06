@@ -1,170 +1,71 @@
-import { Deck, _GlobeView as GlobeView, type PickingInfo } from '@deck.gl/core';
-import { useEffect, useRef, useState } from 'preact/hooks';
-import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
-import type { ScenegraphLayer } from '@deck.gl/mesh-layers';
+import maplibregl from 'maplibre-gl';
+import type { MapMouseEvent } from 'maplibre-gl';
+import { useEffect, useRef } from 'preact/hooks';
 import getSessionTokens from './getSessionToken';
 import type { SessionTokens } from './getSessionToken';
-import getGoogleTileLayer from './getGoogleTileLayer';
+import getGoogleStyle from './getGoogleStyle';
 import getKaabaLayer from './getKaabaLayer';
-import {
-  backgroundOpacity,
-  defaultZoom,
-  kaabaCoordinates,
-  primaryGreenRGB,
-  whiteRGB
-} from './constants';
+import { addQiblaLayers, showQibla } from './getQiblaLayers';
+import { defaultZoom, kaabaCoordinates, maxZoom, minZoom } from './constants';
 
-type QiblaSegment = {
-  source: [ number, number ];
-  target: [ number, number ];
-};
-
-const getQiblaLayers = (
-  clickedPosition: [ number, number ]
-): unknown[] => {
-  const data: QiblaSegment[] = [
-    { source: clickedPosition, target: kaabaCoordinates }
-  ];
-
-  return [
-    new ArcLayer<QiblaSegment>({
-      id: 'qibla-direction-background',
-      data,
-      getSourcePosition: (d: QiblaSegment): [ number, number ] => d.source,
-      getTargetPosition: (d: QiblaSegment): [ number, number ] => d.target,
-      getSourceColor: whiteRGB,
-      getTargetColor: whiteRGB,
-      getWidth: 8,
-      widthUnits: 'pixels',
-      opacity: backgroundOpacity,
-      greatCircle: true,
-      getHeight: 0,
-      parameters: {
-        cullMode: "none"
-      }
-    }),
-    new ScatterplotLayer({
-      id: 'qibla-source-background',
-      data: [ clickedPosition ],
-      getPosition: (d: any): [ number, number ] => d,
-      getFillColor: whiteRGB,
-      opacity: backgroundOpacity,
-      getRadius: 8,
-      radiusUnits: 'pixels',
-      parameters: { depthTest: false }
-    }),
-    new ArcLayer<QiblaSegment>({
-      id: 'qibla-direction-foreground',
-      data,
-      getSourcePosition: (d: QiblaSegment): [ number, number ] => d.source,
-      getTargetPosition: (d: QiblaSegment): [ number, number ] => d.target,
-      getSourceColor: primaryGreenRGB,
-      getTargetColor: primaryGreenRGB,
-      getWidth: 4,
-      widthUnits: 'pixels',
-      greatCircle: true,
-      getHeight: 0,
-      parameters: {
-        cullMode: "none"
-      }
-    }),
-    new ScatterplotLayer({
-      id: 'qibla-source-foreground',
-      data: [ clickedPosition ],
-      getPosition: (d: any): [ number, number ] => d,
-      getFillColor: primaryGreenRGB,
-      getRadius: 6,
-      radiusUnits: 'pixels',
-      parameters: { depthTest: false }
-    })
-  ];
-};
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 function Map() {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const deckRef = useRef<Deck<any> | null>(null);
-  const baseLayerRef = useRef<unknown | null>(null);
-  const kaabaLayerRef = useRef<unknown | null>(null);
-  const [ clickedPosition, setClickedPosition ] = useState<[ number, number ] | null>(null);
+	const mapContainerRef = useRef<HTMLDivElement>(null);
+	const mapRef = useRef<maplibregl.Map | null>(null);
 
-  const initializeMap = (
-    centerPointOverride?: [ number, number ]
-  ): void => {
-    Promise.all([
-      getSessionTokens(),
-      getKaabaLayer(),
-    ])
-      .then((
-        [ sessionTokens, kaabaLayer ]: [ SessionTokens, ScenegraphLayer ]
-      ): void => {
-        const [ longitude, latitude ] = centerPointOverride ?? kaabaCoordinates;
-        const baseLayer = getGoogleTileLayer(sessionTokens.satellite, sessionTokens.roadmap);
-        baseLayerRef.current = baseLayer;
-        kaabaLayerRef.current = kaabaLayer;
+	const initializeMap = (
+		centerPointOverride?: [ number, number ]
+	): void => {
+		getSessionTokens().then((sessionTokens: SessionTokens): void => {
+			if (mapContainerRef.current === null) return;
 
-        deckRef.current = new Deck({
-          parent: mapContainerRef.current ?? undefined,
-          views: [ new GlobeView({
-            resolution: 15,
-          }) ],
-          initialViewState: {
-            longitude,
-            latitude,
-            zoom: defaultZoom,
-            minZoom: 3
-          } as any,
-          controller: true,
-          layers: [ ...baseLayer, kaabaLayer ] as any,
-          onClick: (info: PickingInfo): void => {
-            if (info.coordinate) {
-              setClickedPosition([ info.coordinate[0], info.coordinate[1] ]);
-            }
-          },
-          parameters: {
-            cullMode: 'back',
-          }
-        });
-      });
-  };
+			const map = new maplibregl.Map({
+				container: mapContainerRef.current,
+				style: getGoogleStyle(sessionTokens),
+				center: centerPointOverride ?? kaabaCoordinates,
+				zoom: defaultZoom,
+				minZoom,
+				maxZoom,
+				attributionControl: { compact: true }
+			});
 
-  useEffect((): (() => void) => {
-    if (deckRef.current === null) {
-      if (navigator?.geolocation?.getCurrentPosition) {
-        navigator.geolocation.getCurrentPosition(
-          (position: GeolocationPosition): void => {
-            initializeMap([ position.coords.longitude, position.coords.latitude ]);
-          },
-          (): void => initializeMap()
-        );
-      } else {
-        initializeMap();
-      }
-    }
+			map.on('style.load', (): void => {
+				addQiblaLayers(map);
+				map.addLayer(getKaabaLayer());
+			});
 
-    return (): void => {
-      deckRef.current?.finalize();
-      deckRef.current = null;
-    };
-  }, []);
+			map.on('click', (event: MapMouseEvent): void => {
+				showQibla(map, [ event.lngLat.lng, event.lngLat.lat ]);
+			});
 
-  useEffect((): void => {
-    if (deckRef.current === null || baseLayerRef.current === null) return;
+			mapRef.current = map;
+		});
+	};
 
-    const layers: unknown[] = [ baseLayerRef.current ];
+	useEffect((): (() => void) => {
+		if (mapRef.current === null) {
+			if (navigator?.geolocation?.getCurrentPosition) {
+				navigator.geolocation.getCurrentPosition(
+					(position: GeolocationPosition): void => {
+						initializeMap([ position.coords.longitude, position.coords.latitude ]);
+					},
+					(): void => initializeMap()
+				);
+			} else {
+				initializeMap();
+			}
+		}
 
-    if (clickedPosition) {
-      layers.push(...getQiblaLayers(clickedPosition));
-    }
+		return (): void => {
+			mapRef.current?.remove();
+			mapRef.current = null;
+		};
+	}, []);
 
-    if (kaabaLayerRef.current) {
-      layers.push(kaabaLayerRef.current);
-    }
-    deckRef.current.setProps({ layers: layers as any });
-  }, [ clickedPosition ]);
-
-  return (
-    <div id="map" ref={ mapContainerRef } />
-  );
+	return (
+		<div id="map" ref={ mapContainerRef } />
+	);
 }
 
 export default Map;

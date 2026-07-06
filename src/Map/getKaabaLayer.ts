@@ -1,21 +1,71 @@
-import { load } from '@loaders.gl/core';
-import { GLTFLoader } from '@loaders.gl/gltf';
-import { ScenegraphLayer } from '@deck.gl/mesh-layers';
-import { kaabaCoordinates } from './constants';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { CustomLayerInterface, CustomRenderMethodInput, Map } from 'maplibre-gl';
+import { kaabaCoordinates, kaabaModelRotationDegrees, kaabaModelScale } from './constants';
 
-const getKaabaLayer = async (): Promise<ScenegraphLayer> => {
-  const scenegraph = await load('/Box/Box.gltf', GLTFLoader);
+// glTF models are y-up while the map's model frame is z-up.
+const yUpToZUp = new THREE.Matrix4().makeRotationX(Math.PI / 2);
+const kaabaRotation = new THREE.Matrix4().makeRotationZ(
+	kaabaModelRotationDegrees * Math.PI / 180
+);
+const kaabaScale = new THREE.Matrix4().makeScale(
+	kaabaModelScale,
+	kaabaModelScale,
+	kaabaModelScale
+);
 
-  return new ScenegraphLayer({
-    id: 'kaaba-model',
-    data: [ { position: kaabaCoordinates } ],
-    scenegraph,
-    getPosition: (d: any) => [ d.position[0], d.position[1], 1 ],
-    getOrientation: (): [ number, number, number ] => [ 0, 32, 90 ],
-    sizeMinPixels: 40,
-    sizeScale: 20,
-    _lighting: 'pbr'
-  });
+const getKaabaLayer = (): CustomLayerInterface => {
+	let map: Map;
+	let camera: THREE.Camera;
+	let scene: THREE.Scene;
+	let renderer: THREE.WebGLRenderer;
+
+	return {
+		id: 'kaaba-model',
+		type: 'custom',
+		renderingMode: '3d',
+
+		onAdd(mapInstance: Map, gl: WebGL2RenderingContext): void {
+			map = mapInstance;
+			camera = new THREE.Camera();
+			scene = new THREE.Scene();
+
+			scene.add(new THREE.AmbientLight(0xffffff, 1));
+			const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+			directionalLight.position.set(50, 100, 100);
+			scene.add(directionalLight);
+
+			new GLTFLoader().load('/Box/Box.gltf', (gltf): void => {
+				scene.add(gltf.scene);
+				map.triggerRepaint();
+			});
+
+			renderer = new THREE.WebGLRenderer({
+				canvas: map.getCanvas(),
+				context: gl,
+				antialias: true
+			});
+			renderer.autoClear = false;
+		},
+
+		render(_gl: WebGL2RenderingContext, args: CustomRenderMethodInput): void {
+			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
+			console.log("kaaba")
+			camera.projectionMatrix = new THREE.Matrix4()
+				.fromArray(args.defaultProjectionData.mainMatrix)
+				.multiply(new THREE.Matrix4().fromArray(modelMatrix))
+				.multiply(kaabaScale)
+				.multiply(kaabaRotation)
+				.multiply(yUpToZUp);
+
+			renderer.resetState();
+			renderer.render(scene, camera);
+		},
+
+		onRemove(): void {
+			renderer.dispose();
+		}
+	};
 };
 
 export default getKaabaLayer;
