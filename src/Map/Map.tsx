@@ -1,10 +1,9 @@
-import { Map as MaplibreMap, NavigationControl } from 'maplibre-gl';
+import { Deck, _GlobeView as GlobeView, type PickingInfo } from '@deck.gl/core';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import 'maplibre-gl/dist/maplibre-gl.css';
-import { MapboxOverlay } from '@deck.gl/mapbox';
-import { ScenegraphLayer } from '@deck.gl/mesh-layers';
-import { LineLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
+import getGoogleTileLayer from './getGoogleTileLayer';
+import getKaabaLayer from './getKaabaLayer';
 import {
   backgroundOpacity,
   defaultZoom,
@@ -12,154 +11,143 @@ import {
   primaryGreenRGB,
   whiteRGB
 } from './constants';
-import getBasemapStyle from './getBasemapStyle';
 
-export type Position = [ number, number, number ];
+type QiblaSegment = {
+  source: [ number, number ];
+  target: [ number, number ];
+};
+
+const getQiblaLayers = (
+  clickedPosition: [ number, number ]
+): unknown[] => {
+  const data: QiblaSegment[] = [
+    { source: clickedPosition, target: kaabaCoordinates }
+  ];
+
+  return [
+    new ArcLayer<QiblaSegment>({
+      id: 'qibla-direction-background',
+      data,
+      getSourcePosition: (d: QiblaSegment): [ number, number ] => d.source,
+      getTargetPosition: (d: QiblaSegment): [ number, number ] => d.target,
+      getSourceColor: whiteRGB,
+      getTargetColor: whiteRGB,
+      getWidth: 8,
+      widthUnits: 'pixels',
+      opacity: backgroundOpacity,
+      greatCircle: true,
+      getHeight: 0
+    }),
+    new ScatterplotLayer({
+      id: 'qibla-source-background',
+      data: [ clickedPosition ],
+      getPosition: (d: any): [ number, number ] => d,
+      getFillColor: whiteRGB,
+      opacity: backgroundOpacity,
+      getRadius: 8,
+      radiusUnits: 'pixels',
+      parameters: { depthTest: false }
+    }),
+    new ArcLayer<QiblaSegment>({
+      id: 'qibla-direction-foreground',
+      data,
+      getSourcePosition: (d: QiblaSegment): [ number, number ] => d.source,
+      getTargetPosition: (d: QiblaSegment): [ number, number ] => d.target,
+      getSourceColor: primaryGreenRGB,
+      getTargetColor: primaryGreenRGB,
+      getWidth: 4,
+      widthUnits: 'pixels',
+      greatCircle: true,
+      getHeight: 0
+    }),
+    new ScatterplotLayer({
+      id: 'qibla-source-foreground',
+      data: [ clickedPosition ],
+      getPosition: (d: any): [ number, number ] => d,
+      getFillColor: primaryGreenRGB,
+      getRadius: 6,
+      radiusUnits: 'pixels',
+      parameters: { depthTest: false }
+    })
+  ];
+};
 
 function Map() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [ clickedPosition, setClickedPosition ] = useState<[number, number] | null>(null);
-  const [ map, setMap ] = useState<MaplibreMap | undefined>(undefined);
-  const deckOverlayRef = useRef<MapboxOverlay | null>(null);
+  const deckRef = useRef<Deck<any> | null>(null);
+  const baseLayerRef = useRef<unknown | null>(null);
+  const kaabaLayerRef = useRef<unknown | null>(null);
+  const [ clickedPosition, setClickedPosition ] = useState<[ number, number ] | null>(null);
 
   const initializeMap = (
     centerPointOverride?: [ number, number ]
   ): void => {
-    getSessionToken()
+    Promise.all([ getSessionToken(), getKaabaLayer() ])
       .then((
-        response: SessionTokenRequestResponse
+        [ response, kaabaLayer ]: [ SessionTokenRequestResponse, unknown ]
       ): void => {
-        const newMap = new MaplibreMap({
-          container: mapContainerRef.current,
-          style: getBasemapStyle(response.session),
-          center: centerPointOverride ?? kaabaCoordinates,
-          zoom: defaultZoom,
-          pitch: 45
+        const [ longitude, latitude ] = centerPointOverride ?? kaabaCoordinates;
+        const baseLayer = getGoogleTileLayer(response.session);
+        baseLayerRef.current = baseLayer;
+        kaabaLayerRef.current = kaabaLayer;
+
+        deckRef.current = new Deck({
+          parent: mapContainerRef.current ?? undefined,
+          views: [ new GlobeView() ],
+          initialViewState: {
+            longitude,
+            latitude,
+            zoom: defaultZoom
+          } as any,
+          controller: true,
+          layers: [ baseLayer, kaabaLayer ] as any,
+          onClick: (info: PickingInfo): void => {
+            if (info.coordinate) {
+              setClickedPosition([ info.coordinate[0], info.coordinate[1] ]);
+            }
+          }
         });
-
-        newMap.addControl(
-          new NavigationControl({
-            visualizePitch: true,
-            showZoom: true,
-            showCompass: true
-          })
-        );
-
-        const deckOverlay = new MapboxOverlay({
-          layers: [ kaaba3D ]
-        });
-
-        newMap.addControl(deckOverlay as any);
-        newMap.on('click', (e) => {
-          setClickedPosition([e.lngLat.lng, e.lngLat.lat]);
-        });
-
-        deckOverlayRef.current = deckOverlay;
-        setMap(newMap);
       });
-  }
+  };
 
-  const kaaba3D = new ScenegraphLayer({
-    id: 'kaaba-model',
-    data: [{ position: kaabaCoordinates }],
-    scenegraph: '/Box/Box.gltf',
-    getPosition: (d: any): Position => [d.position[0], d.position[1], 1],
-    getOrientation: (_d: any): [ number, number, number ] => [0, 32, 90],
-    sizeMinPixels: 40,
-    sizeScale: 20,
-    getPolygonOffset: (): [ number, number ] => [ .5, .5],
-    _lighting: 'pbr'
-  });
-
-  useEffect((): void => {
-    if (map === undefined) {
-
+  useEffect((): (() => void) => {
+    if (deckRef.current === null) {
       if (navigator?.geolocation?.getCurrentPosition) {
         navigator.geolocation.getCurrentPosition(
           (position: GeolocationPosition): void => {
-            const centerPointOverride: [ number, number ] = [ position.coords.longitude, position.coords.latitude ];
-            initializeMap(centerPointOverride);
+            initializeMap([ position.coords.longitude, position.coords.latitude ]);
           },
-          () => initializeMap()
+          (): void => initializeMap()
         );
       } else {
         initializeMap();
       }
     }
-  }, [ mapContainerRef ]);
+
+    return (): void => {
+      deckRef.current?.finalize();
+      deckRef.current = null;
+    };
+  }, []);
 
   useEffect((): void => {
-    if (!deckOverlayRef.current) return;
+    if (deckRef.current === null || baseLayerRef.current === null) return;
 
-    const layers: any[] = [];
+    const layers: unknown[] = [ baseLayerRef.current ];
 
     if (clickedPosition) {
-      type LineData = {
-        source: [ number, number ];
-        target: [ number, number ];
-      };
-
-      layers.push([
-        new LineLayer<LineData>({
-          id: 'qibla-direction',
-          data: [
-            {
-              source: clickedPosition,
-              target: kaabaCoordinates,
-            }
-          ],
-          getWidth: 8,
-          getSourcePosition: (d: LineData): Position => [d.source[0], d.source[1], 0],
-          getTargetPosition: (d: LineData): Position => [d.target[0], d.target[1], 0],
-          getColor: whiteRGB,
-          opacity: backgroundOpacity
-        }),
-        new ScatterplotLayer({
-          id: 'qibla-direction-source-background',
-          data: [ clickedPosition ],
-          getPosition: (d: any): Position => d,
-          getFillColor: whiteRGB,
-          opacity: backgroundOpacity,
-          getRadius: 8,
-          radiusUnits: 'pixels',
-          parameters: {
-            depthTest: false
-          }
-        }),
-        new LineLayer<LineData>({
-          id: 'qibla-direction-foreground',
-          data: [
-            {
-              source: clickedPosition,
-              target: kaabaCoordinates,
-            },
-          ],
-          getWidth: 4,
-          getSourcePosition: (d: LineData): Position => [d.source[0], d.source[1], 0],
-          getTargetPosition: (d: LineData): Position => [d.target[0], d.target[1], 0],
-          getColor: primaryGreenRGB,
-        }),
-        new ScatterplotLayer({
-          id: 'qibla-direction-source-foreground',
-          data: [ clickedPosition ],
-          getPosition: (d: any): Position => d,
-          getFillColor: primaryGreenRGB,
-          getRadius: 6,
-          radiusUnits: 'pixels',
-          parameters: {
-            depthTest: false
-          }
-        })
-      ]);
+      layers.push(...getQiblaLayers(clickedPosition));
     }
 
-    layers.push(kaaba3D);
-    deckOverlayRef.current.setProps({ layers });
+    if (kaabaLayerRef.current) {
+      layers.push(kaabaLayerRef.current);
+    }
+    deckRef.current.setProps({ layers: layers as any });
   }, [ clickedPosition ]);
 
   return (
     <div id="map" ref={ mapContainerRef } />
-  )
+  );
 }
 
 export default Map;

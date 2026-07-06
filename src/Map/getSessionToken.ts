@@ -13,7 +13,7 @@ function getSessionToken(): Promise<SessionTokenRequestResponse> {
     `https://tile.googleapis.com/v1/createSession?key=${ googleMapsAPIKey }`, {
       method: 'POST',
       body: JSON.stringify({
-        mapType: 'satellite',
+        mapType: 'roadmap',
         language: 'en-US',
         region: 'US',
         layerTypes: ['layerRoadmap']
