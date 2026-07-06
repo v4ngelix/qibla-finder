@@ -8,9 +8,8 @@ import {
 	kaabaModelScale
 } from './constants';
 
-// glTF models are y-up while the map's model frame is z-up.
 const yUpToZUp = new THREE.Matrix4().makeRotationX(Math.PI / 2);
-const kaabaRotation = new THREE.Matrix4().makeRotationZ(
+const kaabaRotation = new THREE.Matrix4().makeRotationY(
 	kaabaModelRotationDegrees * Math.PI / 180
 );
 const kaabaScale = new THREE.Matrix4();
