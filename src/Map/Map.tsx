@@ -2,7 +2,8 @@ import { Deck, _GlobeView as GlobeView, type PickingInfo } from '@deck.gl/core';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
 import type { ScenegraphLayer } from '@deck.gl/mesh-layers';
-import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
+import getSessionTokens from './getSessionToken';
+import type { SessionTokens } from './getSessionToken';
 import getGoogleTileLayer from './getGoogleTileLayer';
 import getKaabaLayer from './getKaabaLayer';
 import {
@@ -90,15 +91,14 @@ function Map() {
     centerPointOverride?: [ number, number ]
   ): void => {
     Promise.all([
-      getSessionToken('satellite'),
-      getSessionToken('roadmap'),
+      getSessionTokens(),
       getKaabaLayer(),
     ])
       .then((
-        [ satelliteResponse, roadmapResponse, kaabaLayer ]: [ SessionTokenRequestResponse, SessionTokenRequestResponse, ScenegraphLayer ]
+        [ sessionTokens, kaabaLayer ]: [ SessionTokens, ScenegraphLayer ]
       ): void => {
         const [ longitude, latitude ] = centerPointOverride ?? kaabaCoordinates;
-        const baseLayer = getGoogleTileLayer(satelliteResponse.session, roadmapResponse.session,);
+        const baseLayer = getGoogleTileLayer(sessionTokens.satellite, sessionTokens.roadmap);
         baseLayerRef.current = baseLayer;
         kaabaLayerRef.current = kaabaLayer;
 

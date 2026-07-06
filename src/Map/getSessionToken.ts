@@ -1,6 +1,6 @@
 import { googleMapsAPIKey } from './constants';
 
-export type SessionTokenRequestResponse = {
+type SessionTokenRequestResponse = {
   session: string,
   expiry: string,
   tileWidth: number,
@@ -8,7 +8,12 @@ export type SessionTokenRequestResponse = {
   imageFormat: 'png' | 'jpg',
 }
 
-function getSessionToken(mapType: 'satellite' | 'roadmap'): Promise<SessionTokenRequestResponse> {
+export type SessionTokens = {
+  satellite: string,
+  roadmap: string,
+}
+
+function fetchSessionToken(mapType: 'satellite' | 'roadmap'): Promise<SessionTokenRequestResponse> {
   return fetch(
     `https://tile.googleapis.com/v1/createSession?key=${googleMapsAPIKey}`, {
       method: 'POST',
@@ -22,4 +27,14 @@ function getSessionToken(mapType: 'satellite' | 'roadmap'): Promise<SessionToken
   ).then(res => res.json());
 }
 
-export default getSessionToken;
+function getSessionTokens(): Promise<SessionTokens> {
+  return Promise.all([
+    fetchSessionToken('satellite'),
+    fetchSessionToken('roadmap'),
+  ]).then(([ satelliteResponse, roadmapResponse ]): SessionTokens => ({
+    satellite: satelliteResponse.session,
+    roadmap: roadmapResponse.session,
+  }));
+}
+
+export default getSessionTokens;
