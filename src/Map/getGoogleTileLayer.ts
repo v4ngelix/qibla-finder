@@ -6,7 +6,7 @@ const getGoogleTileLayer = (
   sessionToken: string
 ): TileLayer =>
   new TileLayer({
-    id: 'google-satellite',
+    id: 'google',
     data: `https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${ sessionToken }&key=${ googleMapsAPIKey }`,
     minZoom: 0,
     maxZoom: 22,
