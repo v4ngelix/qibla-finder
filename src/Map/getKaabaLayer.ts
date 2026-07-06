@@ -8,7 +8,7 @@ import {
 	kaabaModelScale
 } from './constants';
 
-const yUpToZUp = new THREE.Matrix4().makeRotationX(Math.PI / 2);
+// getMatrixForModel already converts Y-up glTF space to the map's Z-up space
 const kaabaRotation = new THREE.Matrix4().makeRotationY(
 	kaabaModelRotationDegrees * Math.PI / 180
 );
@@ -57,8 +57,7 @@ const getKaabaLayer = (): CustomLayerInterface => {
 				.fromArray(args.defaultProjectionData.mainMatrix)
 				.multiply(new THREE.Matrix4().fromArray(modelMatrix))
 				.multiply(kaabaScale)
-				.multiply(kaabaRotation)
-				.multiply(yUpToZUp);
+				.multiply(kaabaRotation);
 
 			renderer.resetState();
 			renderer.render(scene, camera);
