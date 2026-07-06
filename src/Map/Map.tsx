@@ -6,7 +6,7 @@ import type { SessionTokens } from './getSessionToken';
 import getGoogleStyle from './getGoogleStyle';
 import getKaabaLayer from './getKaabaLayer';
 import { addQiblaLayers, showQibla } from './getQiblaLayers';
-import { defaultZoom, kaabaCoordinates, maxZoom, minZoom } from './constants';
+import { defaultZoom, kaabaCoordinates, maxZoom } from './constants';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -25,7 +25,7 @@ function Map() {
 				style: getGoogleStyle(sessionTokens),
 				center: centerPointOverride ?? kaabaCoordinates,
 				zoom: defaultZoom,
-				minZoom,
+				minZoom: 2,
 				maxZoom,
 				attributionControl: { compact: true }
 			});
