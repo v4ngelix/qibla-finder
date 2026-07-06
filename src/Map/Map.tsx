@@ -105,6 +105,9 @@ function Map() {
             if (info.coordinate) {
               setClickedPosition([ info.coordinate[0], info.coordinate[1] ]);
             }
+          },
+          parameters: {
+            cullMode: 'back',
           }
         });
       });
