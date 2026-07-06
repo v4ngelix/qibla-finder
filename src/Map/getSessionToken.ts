@@ -8,15 +8,15 @@ export type SessionTokenRequestResponse = {
   imageFormat: 'png' | 'jpg',
 }
 
-function getSessionToken(): Promise<SessionTokenRequestResponse> {
+function getSessionToken(mapType: 'satellite' | 'roadmap'): Promise<SessionTokenRequestResponse> {
   return fetch(
-    `https://tile.googleapis.com/v1/createSession?key=${ googleMapsAPIKey }`, {
+    `https://tile.googleapis.com/v1/createSession?key=${googleMapsAPIKey}`, {
       method: 'POST',
       body: JSON.stringify({
-        mapType: 'roadmap',
+        mapType,
         language: 'en-US',
         region: 'US',
-        layerTypes: ['layerRoadmap']
+        layerTypes: mapType === 'satellite' ? ['layerRoadmap'] : []
       })
     }
   ).then(res => res.json());

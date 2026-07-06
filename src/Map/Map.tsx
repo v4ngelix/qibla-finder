@@ -1,6 +1,6 @@
 import { Deck, _GlobeView as GlobeView, type PickingInfo } from '@deck.gl/core';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, ArcLayer, SolidPolygonLayer } from '@deck.gl/layers';
 import getSessionToken, { SessionTokenRequestResponse } from './getSessionToken';
 import getGoogleTileLayer from './getGoogleTileLayer';
 import getKaabaLayer from './getKaabaLayer';
@@ -16,6 +16,17 @@ type QiblaSegment = {
   source: [ number, number ];
   target: [ number, number ];
 };
+
+const getBackgroundLayer = async () => new SolidPolygonLayer({
+    id: 'background',
+    data: [
+      [[-180, 90], [0, 90], [180, 90], [180, -90], [0, -90], [-180, -90]]
+    ],
+    getPolygon: d => d,
+    stroked: false,
+    filled: true,
+    getFillColor: [255, 255, 255]
+  });
 
 const getQiblaLayers = (
   clickedPosition: [ number, number ]
@@ -82,12 +93,17 @@ function Map() {
   const initializeMap = (
     centerPointOverride?: [ number, number ]
   ): void => {
-    Promise.all([ getSessionToken(), getKaabaLayer() ])
+    Promise.all([
+      getSessionToken('satellite'),
+      getSessionToken('roadmap'),
+      getKaabaLayer(),
+      getBackgroundLayer()
+    ])
       .then((
-        [ response, kaabaLayer ]: [ SessionTokenRequestResponse, unknown ]
+        [ satelliteResponse, roadmapResponse, kaabaLayer, backgroundLayer ]: [ SessionTokenRequestResponse, SessionTokenRequestResponse, unknown, unknown ]
       ): void => {
         const [ longitude, latitude ] = centerPointOverride ?? kaabaCoordinates;
-        const baseLayer = getGoogleTileLayer(response.session);
+        const baseLayer = getGoogleTileLayer(satelliteResponse.session, roadmapResponse.session,);
         baseLayerRef.current = baseLayer;
         kaabaLayerRef.current = kaabaLayer;
 
@@ -100,7 +116,7 @@ function Map() {
             zoom: defaultZoom
           } as any,
           controller: true,
-          layers: [ baseLayer, kaabaLayer ] as any,
+          layers: [ ...baseLayer, kaabaLayer, backgroundLayer ] as any,
           onClick: (info: PickingInfo): void => {
             if (info.coordinate) {
               setClickedPosition([ info.coordinate[0], info.coordinate[1] ]);
