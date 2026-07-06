@@ -1,18 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { CustomLayerInterface, CustomRenderMethodInput, Map } from 'maplibre-gl';
-import { kaabaCoordinates, kaabaModelRotationDegrees, kaabaModelScale } from './constants';
+import {
+	kaabaCoordinates,
+	kaabaModelReferenceZoom,
+	kaabaModelRotationDegrees,
+	kaabaModelScale
+} from './constants';
 
 // glTF models are y-up while the map's model frame is z-up.
 const yUpToZUp = new THREE.Matrix4().makeRotationX(Math.PI / 2);
 const kaabaRotation = new THREE.Matrix4().makeRotationZ(
 	kaabaModelRotationDegrees * Math.PI / 180
 );
-const kaabaScale = new THREE.Matrix4().makeScale(
-	kaabaModelScale,
-	kaabaModelScale,
-	kaabaModelScale
-);
+const kaabaScale = new THREE.Matrix4();
 
 const getKaabaLayer = (): CustomLayerInterface => {
 	let map: Map;
@@ -50,7 +51,11 @@ const getKaabaLayer = (): CustomLayerInterface => {
 
 		render(_gl: WebGL2RenderingContext, args: CustomRenderMethodInput): void {
 			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
-			console.log("kaaba")
+			// Ground meters per screen pixel halve with each zoom level, so
+			// counter-scale the model to keep its on-screen size constant.
+			const scale = kaabaModelScale
+				* 2 ** (kaabaModelReferenceZoom - map.getZoom());
+			kaabaScale.makeScale(scale, scale, scale);
 			camera.projectionMatrix = new THREE.Matrix4()
 				.fromArray(args.defaultProjectionData.mainMatrix)
 				.multiply(new THREE.Matrix4().fromArray(modelMatrix))
