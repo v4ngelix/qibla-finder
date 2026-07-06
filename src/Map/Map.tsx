@@ -110,7 +110,8 @@ function Map() {
           initialViewState: {
             longitude,
             latitude,
-            zoom: defaultZoom
+            zoom: defaultZoom,
+            minZoom: 3
           } as any,
           controller: true,
           layers: [ ...baseLayer, kaabaLayer ] as any,
