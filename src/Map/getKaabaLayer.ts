@@ -9,16 +9,6 @@ import {
 	kaabaModelScaleMinZoom
 } from './constants';
 
-/**
- * TODO:
- * - Scale Kaaba in a way that when zoomed in on Mecca, the Kaaba on the satellite tile wouldn't peek out from under the 3D model.
- */
-
-const kaabaRotation = new THREE.Matrix4().makeRotationY(
-	kaabaModelRotationDegrees * Math.PI / 180
-);
-const kaabaScale = new THREE.Matrix4();
-
 const getKaabaLayer = (): CustomLayerInterface => {
 	let map: Map;
 	let camera: THREE.Camera;
@@ -57,12 +47,13 @@ const getKaabaLayer = (): CustomLayerInterface => {
 			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
 			const scale = kaabaModelScale
 				* 2 ** (kaabaModelReferenceZoom - Math.max(map.getZoom(), kaabaModelScaleMinZoom));
-			kaabaScale.makeScale(scale, scale, scale);
 			camera.projectionMatrix = new THREE.Matrix4()
 				.fromArray(args.defaultProjectionData.mainMatrix)
 				.multiply(new THREE.Matrix4().fromArray(modelMatrix))
-				.multiply(kaabaScale)
-				.multiply(kaabaRotation);
+				.multiply(new THREE.Matrix4().makeScale(scale, scale, scale))
+				.multiply(new THREE.Matrix4().makeRotationY(
+					kaabaModelRotationDegrees * Math.PI / 180
+				));
 
 			renderer.resetState();
 			renderer.render(scene, camera);
