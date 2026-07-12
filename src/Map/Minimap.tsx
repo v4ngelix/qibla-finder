@@ -83,10 +83,8 @@ function Minimap() {
 				addMeccaMarker(map);
 
 				styleLoaded = true;
-				if (pendingPosition !== null) {
-					showQibla(map, pendingPosition);
-					fitToQibla(map, pendingPosition);
-				}
+				showQibla(map, pendingPosition);
+				fitToQibla(map, pendingPosition);
 			});
 
 			mapRef.current = map;
