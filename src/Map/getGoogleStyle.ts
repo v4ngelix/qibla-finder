@@ -8,6 +8,7 @@ const getTileURL = (sessionToken: string): string =>
 const getGoogleStyle = (sessionTokens: SessionTokens): StyleSpecification => ({
 	version: 8,
 	projection: { type: 'globe' },
+	glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
 	sources: {
 		'google-roadmap': {
 			type: 'raster',

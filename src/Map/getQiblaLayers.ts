@@ -1,5 +1,6 @@
 import type { GeoJSONSource, Map } from 'maplibre-gl';
 import getGreatCirclePoints from './greatCircle';
+import getQiblaLabel from './getQiblaLabel';
 import { kaabaCoordinates, primaryGreen, white } from './constants';
 
 const qiblaLineSource = 'qibla-line';
@@ -52,6 +53,23 @@ export const addQiblaLayers = (map: Map): void => {
 			'circle-radius': 6
 		}
 	});
+	map.addLayer({
+		id: 'qibla-label',
+		type: 'symbol',
+		source: qiblaLineSource,
+		layout: {
+			'symbol-placement': 'line',
+			'text-field': [ 'get', 'label' ],
+			'text-font': [ 'Open Sans Regular' ],
+			'text-size': 14,
+			'text-letter-spacing': 0.05
+		},
+		paint: {
+			'text-color': primaryGreen,
+			'text-halo-color': white,
+			'text-halo-width': 2
+		}
+	});
 };
 
 export const showQibla = (map: Map, position: [ number, number ]): void => {
@@ -62,7 +80,9 @@ export const showQibla = (map: Map, position: [ number, number ]): void => {
 
 	lineSource.setData({
 		type: 'Feature',
-		properties: {},
+		properties: {
+			label: getQiblaLabel(position, kaabaCoordinates)
+		},
 		geometry: {
 			type: 'LineString',
 			coordinates: getGreatCirclePoints(position, kaabaCoordinates)
