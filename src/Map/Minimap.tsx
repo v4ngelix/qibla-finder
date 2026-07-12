@@ -79,9 +79,7 @@ function Minimap() {
 			});
 
 			map.on('style.load', (): void => {
-				addQiblaLayers(map);
-				// TODO: split label layer or add an optional parameter
-				map.removeLayer('qibla-label');
+				addQiblaLayers(map, false);
 				addMeccaMarker(map);
 
 				styleLoaded = true;

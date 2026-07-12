@@ -23,7 +23,7 @@ const emptyFeatureCollection: GeoJSON.FeatureCollection = {
 	features: []
 };
 
-export const addQiblaLayers = (map: Map): void => {
+export const addQiblaLayers = (map: Map, includeLabel = true): void => {
 	map.addSource(qiblaLineSource, { type: 'geojson', data: emptyFeatureCollection });
 	map.addSource(qiblaPointSource, { type: 'geojson', data: emptyFeatureCollection });
 
@@ -65,25 +65,27 @@ export const addQiblaLayers = (map: Map): void => {
 			'circle-radius': 6
 		}
 	});
-	map.addLayer({
-		id: 'qibla-label',
-		type: 'symbol',
-		source: qiblaPointSource,
-		layout: {
-			'symbol-placement': 'point',
-			'text-field': [ 'get', 'label' ],
-			'text-font': [ 'Open Sans Regular' ],
-			'text-size': 14,
-			'text-letter-spacing': 0.05,
-			'text-anchor': 'center',
-			'text-offset': [ 'get', 'labelOffset' ]
-		},
-		paint: {
-			'text-color': primaryGreen,
-			'text-halo-color': white,
-			'text-halo-width': 2
-		}
-	});
+	if (includeLabel) {
+		map.addLayer({
+			id: 'qibla-label',
+			type: 'symbol',
+			source: qiblaPointSource,
+			layout: {
+				'symbol-placement': 'point',
+				'text-field': [ 'get', 'label' ],
+				'text-font': [ 'Open Sans Regular' ],
+				'text-size': 14,
+				'text-letter-spacing': 0.05,
+				'text-anchor': 'center',
+				'text-offset': [ 'get', 'labelOffset' ]
+			},
+			paint: {
+				'text-color': primaryGreen,
+				'text-halo-color': white,
+				'text-halo-width': 2
+			}
+		});
+	}
 };
 
 export const showQibla = (map: Map, position: [ number, number ]): void => {
