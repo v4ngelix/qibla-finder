@@ -6,6 +6,7 @@ import {
 	kaabaModelReferenceZoom,
 	kaabaModelRotationDegrees,
 	kaabaModelScale,
+	kaabaModelScaleMaxZoom,
 	kaabaModelScaleMinZoom
 } from './constants';
 
@@ -45,8 +46,12 @@ const getKaabaLayer = (): CustomLayerInterface => {
 
 		render(_gl: WebGL2RenderingContext, args: CustomRenderMethodInput): void {
 			const modelMatrix = map.transform.getMatrixForModel(kaabaCoordinates, 0);
+			const clampedZoom = Math.min(
+				Math.max(map.getZoom(), kaabaModelScaleMinZoom),
+				kaabaModelScaleMaxZoom
+			);
 			const scale = kaabaModelScale
-				* 2 ** (kaabaModelReferenceZoom - Math.max(map.getZoom(), kaabaModelScaleMinZoom));
+				* 2 ** (kaabaModelReferenceZoom - clampedZoom);
 			camera.projectionMatrix = new THREE.Matrix4()
 				.fromArray(args.defaultProjectionData.mainMatrix)
 				.multiply(new THREE.Matrix4().fromArray(modelMatrix))
