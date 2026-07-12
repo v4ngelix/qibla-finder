@@ -9,7 +9,11 @@ import {
 	kaabaModelScaleMinZoom
 } from './constants';
 
-// getMatrixForModel already converts Y-up glTF space to the map's Z-up space
+/**
+ * TODO:
+ * - Scale Kaaba in a way that when zoomed in on Mecca, the Kaaba on the satellite tile wouldn't peek out from under the 3D model.
+ */
+
 const kaabaRotation = new THREE.Matrix4().makeRotationY(
 	kaabaModelRotationDegrees * Math.PI / 180
 );
