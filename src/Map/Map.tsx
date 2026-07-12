@@ -6,6 +6,7 @@ import type { SessionTokens } from './getSessionToken';
 import getGoogleStyle from './getGoogleStyle';
 import getKaabaLayer from './getKaabaLayer';
 import { addQiblaLayers, showQibla } from './getQiblaLayers';
+import { setQiblaPosition } from './qiblaStore';
 import { defaultZoom, kaabaCoordinates, maxZoom } from './constants';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -41,7 +42,9 @@ function Map() {
 			});
 
 			map.on('click', (event: MapMouseEvent): void => {
-				showQibla(map, [ event.lngLat.lng, event.lngLat.lat ]);
+				const position: [ number, number ] = [ event.lngLat.lng, event.lngLat.lat ];
+				showQibla(map, position);
+				setQiblaPosition(position);
 			});
 
 			mapRef.current = map;
