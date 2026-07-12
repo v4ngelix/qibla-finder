@@ -33,9 +33,13 @@ const addMeccaMarker = (map: maplibregl.Map): void => {
 };
 
 const fitToQibla = (map: maplibregl.Map, position: [ number, number ]): void => {
+	const [ kaabaLng, kaabaLat ] = kaabaCoordinates;
+	const longitudeDelta = kaabaLng - position[0];
+	const unwrappedMeccaLng = kaabaLng - 360 * Math.round(longitudeDelta / 360);
+
 	const bounds = new maplibregl.LngLatBounds();
 	bounds.extend(position);
-	bounds.extend(kaabaCoordinates);
+	bounds.extend([ unwrappedMeccaLng, kaabaLat ]);
 
 	map.fitBounds(bounds, { padding: 30, maxZoom: 12, animate: false });
 };
