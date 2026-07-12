@@ -21,7 +21,8 @@ function Map() {
 	const mapRef = useRef<maplibregl.Map | null>(null);
 
 	const initializeMap = (
-		centerPointOverride?: [ number, number ]
+		centerPointOverride?: [ number, number ],
+		hasLocation?: boolean
 	): void => {
 		getSessionTokens().then((sessionTokens: SessionTokens): void => {
 			if (mapContainerRef.current === null) return;
@@ -47,6 +48,14 @@ function Map() {
 				setQiblaPosition(position);
 			});
 
+			map.on('load', (): void => {
+				if (hasLocation) {
+					const position: [ number, number ] = centerPointOverride;
+					showQibla(map, position);
+					setQiblaPosition(position);
+				}
+			})
+
 			mapRef.current = map;
 			mapInstance = map;
 		});
@@ -57,7 +66,7 @@ function Map() {
 			if (navigator?.geolocation?.getCurrentPosition) {
 				navigator.geolocation.getCurrentPosition(
 					(position: GeolocationPosition): void => {
-						initializeMap([ position.coords.longitude, position.coords.latitude ]);
+						initializeMap([ position.coords.longitude, position.coords.latitude ], true);
 					},
 					(): void => initializeMap()
 				);
