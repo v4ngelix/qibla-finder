@@ -74,7 +74,7 @@ export const addQiblaLayers = (map: Map, includeLabel = true): void => {
 				'symbol-placement': 'point',
 				'text-field': [ 'get', 'label' ],
 				'text-font': [ 'Open Sans Regular' ],
-				'text-size': 14,
+				'text-size': 18,
 				'text-letter-spacing': 0.05,
 				'text-anchor': 'center',
 				'text-offset': [ 'get', 'labelOffset' ]
