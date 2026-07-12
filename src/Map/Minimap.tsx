@@ -41,7 +41,7 @@ const fitToQibla = (map: maplibregl.Map, position: [ number, number ]): void => 
 	bounds.extend(position);
 	bounds.extend([ unwrappedMeccaLng, kaabaLat ]);
 
-	map.fitBounds(bounds, { padding: 30, maxZoom: 12, animate: false });
+	map.fitBounds(bounds, { padding: 30, maxZoom: 11, animate: false });
 };
 
 function Minimap() {
