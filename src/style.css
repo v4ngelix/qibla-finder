@@ -11,6 +11,9 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-text-size-adjust: 100%;
+
+	--primary-green: rgb(71, 133, 85);
+	--gray: rgb(230, 230, 230);
 }
 
 body {
@@ -30,7 +33,7 @@ body {
 	position: absolute;
 	inset: 0;
 	height: 100vh;
-	background-color: rgb(71, 133, 85);
+	background-color: var(--primary-green);
 }
 
 #map canvas {
