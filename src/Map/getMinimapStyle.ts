@@ -1,5 +1,5 @@
 import type { StyleSpecification } from 'maplibre-gl';
-import { googleMapsAPIKey, satelliteMinZoom, white } from './constants';
+import { googleMapsAPIKey, white } from './constants';
 import type { SessionTokens } from './getSessionToken';
 
 const getTileURL = (sessionToken: string): string =>
