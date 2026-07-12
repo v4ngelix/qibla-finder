@@ -1,4 +1,5 @@
 import { googleMapsAPIKey } from './constants';
+import simplifiedRoadmapStyle from "./simplifiedRoadmapStyle";
 
 type SessionTokenRequestResponse = {
   session: string,
@@ -11,17 +12,21 @@ type SessionTokenRequestResponse = {
 export type SessionTokens = {
   satellite: string,
   roadmap: string,
+  minimap: string,
 }
 
-function fetchSessionToken(mapType: 'satellite' | 'roadmap'): Promise<SessionTokenRequestResponse> {
+function fetchSessionToken(mapType: 'satellite' | 'roadmap' | 'minimap'): Promise<SessionTokenRequestResponse> {
   return fetch(
     `https://tile.googleapis.com/v1/createSession?key=${googleMapsAPIKey}`, {
       method: 'POST',
       body: JSON.stringify({
-        mapType,
+        mapType: mapType === 'minimap' ? 'roadmap' : mapType,
         language: 'en-US',
         region: 'US',
-        layerTypes: mapType === 'satellite' ? ['layerRoadmap'] : []
+        layerTypes: mapType === 'satellite' ? ['layerRoadmap'] : [],
+        ...(mapType === 'minimap' ? {
+          styles: simplifiedRoadmapStyle
+        } : {})
       })
     }
   ).then(res => res.json());
@@ -31,9 +36,11 @@ function getSessionTokens(): Promise<SessionTokens> {
   return Promise.all([
     fetchSessionToken('satellite'),
     fetchSessionToken('roadmap'),
-  ]).then(([ satelliteResponse, roadmapResponse ]): SessionTokens => ({
+    fetchSessionToken('minimap'),
+  ]).then(([ satelliteResponse, roadmapResponse, minimapResponse ]): SessionTokens => ({
     satellite: satelliteResponse.session,
     roadmap: roadmapResponse.session,
+    minimap: minimapResponse.session,
   }));
 }
 

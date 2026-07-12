@@ -12,7 +12,7 @@ const getMinimapStyle = (sessionTokens: SessionTokens): StyleSpecification => ({
 	sources: {
 		'google-roadmap': {
 			type: 'raster',
-			tiles: [ getTileURL(sessionTokens.roadmap) ],
+			tiles: [ getTileURL(sessionTokens.minimap) ],
 			tileSize: 256,
 			maxzoom: 20,
 			attribution: '&copy; Google'
