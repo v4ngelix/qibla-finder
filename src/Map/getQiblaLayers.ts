@@ -1,7 +1,19 @@
 import type { GeoJSONSource, Map } from 'maplibre-gl';
+import bearing from '@turf/bearing';
+import { point } from '@turf/helpers';
 import getGreatCirclePoints from './greatCircle';
 import getQiblaLabel from './getQiblaLabel';
 import { kaabaCoordinates, primaryGreen, white } from './constants';
+
+const getLabelOffset = (source: [ number, number ]): [ number, number ] => {
+	const degrees = bearing(point(source), point(kaabaCoordinates));
+	const radians = (degrees * Math.PI) / 180;
+
+	return [
+		-Math.sin(radians) * 4.5,
+		Math.cos(radians) * 2
+	];
+};
 
 const qiblaLineSource = 'qibla-line';
 const qiblaPointSource = 'qibla-point';
@@ -56,13 +68,15 @@ export const addQiblaLayers = (map: Map): void => {
 	map.addLayer({
 		id: 'qibla-label',
 		type: 'symbol',
-		source: qiblaLineSource,
+		source: qiblaPointSource,
 		layout: {
-			'symbol-placement': 'line',
+			'symbol-placement': 'point',
 			'text-field': [ 'get', 'label' ],
 			'text-font': [ 'Open Sans Regular' ],
 			'text-size': 14,
-			'text-letter-spacing': 0.05
+			'text-letter-spacing': 0.05,
+			'text-anchor': 'center',
+			'text-offset': [ 'get', 'labelOffset' ]
 		},
 		paint: {
 			'text-color': primaryGreen,
@@ -80,9 +94,7 @@ export const showQibla = (map: Map, position: [ number, number ]): void => {
 
 	lineSource.setData({
 		type: 'Feature',
-		properties: {
-			label: getQiblaLabel(position, kaabaCoordinates)
-		},
+		properties: {},
 		geometry: {
 			type: 'LineString',
 			coordinates: getGreatCirclePoints(position, kaabaCoordinates)
@@ -90,7 +102,10 @@ export const showQibla = (map: Map, position: [ number, number ]): void => {
 	});
 	pointSource.setData({
 		type: 'Feature',
-		properties: {},
+		properties: {
+			label: getQiblaLabel(position, kaabaCoordinates),
+			labelOffset: getLabelOffset(position)
+		},
 		geometry: {
 			type: 'Point',
 			coordinates: position
