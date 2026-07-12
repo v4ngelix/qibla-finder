@@ -22,13 +22,13 @@ const addMeccaMarker = (map: maplibregl.Map): void => {
 		id: 'minimap-mecca-background',
 		type: 'circle',
 		source: 'minimap-mecca',
-		paint: { 'circle-color': white, 'circle-radius': 7 }
+		paint: { 'circle-color': white, 'circle-radius': 10 }
 	});
 	map.addLayer({
 		id: 'minimap-mecca-foreground',
 		type: 'circle',
 		source: 'minimap-mecca',
-		paint: { 'circle-color': primaryGreen, 'circle-radius': 5 }
+		paint: { 'circle-color': primaryGreen, 'circle-radius': 8 }
 	});
 };
 
