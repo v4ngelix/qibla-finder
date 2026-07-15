@@ -20,11 +20,6 @@ const getMinimapStyle = (sessionTokens: SessionTokens): StyleSpecification => ({
 	},
 	layers: [
 		{
-			id: 'background',
-			type: 'background',
-			paint: { 'background-color': white }
-		},
-		{
 			id: 'google-roadmap',
 			type: 'raster',
 			source: 'google-roadmap'
