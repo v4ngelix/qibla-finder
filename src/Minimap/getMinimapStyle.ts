@@ -1,6 +1,6 @@
 import type { StyleSpecification } from 'maplibre-gl';
-import { googleMapsAPIKey, white } from './constants';
-import type { SessionTokens } from './getSessionToken';
+import { googleMapsAPIKey, white } from '../Map/constants';
+import type { SessionTokens } from '../Map/getSessionToken';
 
 const getTileURL = (sessionToken: string): string =>
 	`https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${sessionToken}&key=${googleMapsAPIKey}`;

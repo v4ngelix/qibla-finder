@@ -1,5 +1,2 @@
-import Map from './Map';
-
+export { default } from './Map';
 export { flyToKaaba } from './Map';
-export { default as Minimap } from './Minimap';
-export default Map;

@@ -1,11 +1,11 @@
 import maplibregl from 'maplibre-gl';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import getSessionTokens from './getSessionToken';
-import type { SessionTokens } from './getSessionToken';
+import getSessionTokens from '../Map/getSessionToken';
+import type { SessionTokens } from '../Map/getSessionToken';
 import getMinimapStyle from './getMinimapStyle';
-import { addQiblaLayers, showQibla } from './getQiblaLayers';
-import { subscribeToQibla } from './qiblaStore';
-import { kaabaCoordinates, primaryGreen, white } from './constants';
+import { addQiblaLayers, showQibla } from '../Map/getQiblaLayers';
+import { subscribeToQibla } from '../Map/qiblaStore';
+import { kaabaCoordinates, primaryGreen, white } from '../Map/constants';
 
 const mobileQuery = '(max-width: 768px)';
 
