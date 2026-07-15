@@ -9,25 +9,6 @@ const getGoogleStyle = (sessionTokens: SessionTokens): StyleSpecification => ({
 	version: 8,
 	projection: { type: 'globe' },
 	glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-	sky: {
-		"sky-color": "#199EF3",
-		"sky-horizon-blend": 0.5,
-		"horizon-color": "#ffffff",
-		"horizon-fog-blend": 0.5,
-		"fog-color": "#0000ff",
-		"fog-ground-blend": 0.5,
-		"atmosphere-blend": [
-			"interpolate",
-			["linear"],
-			["zoom"],
-			0,
-			1,
-			10,
-			1,
-			12,
-			0
-		]
-	},
 	sources: {
 		'google-roadmap': {
 			type: 'raster',
