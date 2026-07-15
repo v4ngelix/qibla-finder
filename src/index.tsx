@@ -1,5 +1,6 @@
 import { render } from 'preact';
-import Map, { Minimap } from './Map';
+import Map from './Map';
+import Minimap from './Minimap';
 import Instruction from './Instruction';
 
 import './style.css';
