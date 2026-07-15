@@ -34,6 +34,7 @@ function Map() {
 				zoom: defaultZoom,
 				minZoom: 2,
 				maxZoom,
+				maxPitch: 0,
 				attributionControl: { compact: true }
 			});
 
