@@ -5,7 +5,6 @@ import type { SessionTokens } from './getSessionToken';
 const getTileURL = (sessionToken: string): string =>
 	`https://tile.googleapis.com/v1/2dtiles/{z}/{x}/{y}?session=${sessionToken}&key=${googleMapsAPIKey}`;
 
-// TODO: Add nice looking sky configuration
 const getGoogleStyle = (sessionTokens: SessionTokens): StyleSpecification => ({
 	version: 8,
 	projection: { type: 'globe' },
